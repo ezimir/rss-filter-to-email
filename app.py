@@ -28,3 +28,8 @@ def home():
 
     return render_template('home.html', **context)
 
+
+@app.route('/add')
+def add_feed():
+    return render_template('add_feed.html')
+

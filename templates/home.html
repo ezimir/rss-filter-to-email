@@ -18,6 +18,10 @@
                     <p> No feeds saved. </p>
                 {% endif %}
             </article>
+
+            <nav role="navigation">
+                <a class="button" href="{{ url_for('add_feed') }}"> Add Feed </a>
+            </nav>
         </section>
     </main>
 {% endblock %}

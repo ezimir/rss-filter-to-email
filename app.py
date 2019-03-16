@@ -3,6 +3,7 @@
 
 
 import json
+import os
 
 from flask import Flask, request
 from flask import flash, render_template, redirect, url_for
@@ -14,7 +15,7 @@ from wtforms.fields.html5 import URLField
 
 
 app = Flask(__name__)
-app.secret_key = 'L4mJRdpkjXLEBG6R#L;y@KiX8'
+app.secret_key = os.environ.get('FLASK_SECRET_KEY', '')
 
 csrf = CSRFProtect(app)
 csrf.init_app(app)

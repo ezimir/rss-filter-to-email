@@ -1,12 +1,14 @@
 {% extends "base.html" %}
 
+
 {% block header %}Feed List{% endblock %}
+
 {% block content %}
     <article id="feed-list">
         {% if feeds %}
             <ul>
                 {% for feed in feeds %}
-                    <li> {{ feed.title }} </li>
+                    <li> {{ feed.url }} </li>
                 {% endfor %}
             </ul>
         {% else %}

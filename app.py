@@ -46,7 +46,16 @@ class AddFeedForm(FlaskForm):
 def add_feed():
     form = AddFeedForm(request.form)
     if request.method == 'POST' and form.validate():
-        flash('Saved')
+        with open(DATA_FILE, 'a+') as f:
+            try:
+                feeds = json.load(f)
+            except json.decoder.JSONDecodeError:
+                feeds = []
+            feeds.append({
+                'url': form.data['url'],
+            })
+            json.dump(feeds, f, indent = 4)
+        flash('Feed saved!')
         return redirect(url_for('home'))
     return render_template('add_feed.html', form = form)
 

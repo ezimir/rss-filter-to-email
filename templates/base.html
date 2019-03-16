@@ -11,6 +11,24 @@
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/milligram/1.3.0/milligram.min.css">
 </head>
 <body>
+    <nav role="navigation">
+        <section class="container">
+            <h1 class="title"> RSS Filter to Email </h1>
+        </section>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <section class="container">
+                <strong> Error! </strong>
+
+                {% for category, message in messages %}
+                    <p class="{{ category }}">{{ message }}</p>
+                {% endfor %}
+            </section>
+        {% endif %}
+    {% endwith %}
+
     {% block content %}{% endblock %}
 </body>
 </html>

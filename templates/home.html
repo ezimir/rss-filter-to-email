@@ -3,6 +3,21 @@
 {% block content %}
     <main role="main">
         <section class="container">
+            <header>
+                <h2> Feed List </h2>
+            </header>
+
+            <article id="feed-list">
+                {% if feeds %}
+                    <ul>
+                        {% for feed in feeds %}
+                            <li> {{ feed.title }} </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p> No feeds saved. </p>
+                {% endif %}
+            </article>
         </section>
     </main>
 {% endblock %}

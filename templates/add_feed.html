@@ -1,20 +1,15 @@
 {% extends "base.html" %}
 
+
+{% block header %}Add Feed{% endblock %}
 {% block content %}
-    <main role="main">
-        <section class="container">
-            <header>
-                <h2> Add Feed </h2>
-            </header>
+    <form autocomplete="false" method="post">
+        <fieldset>
+            <label for="field-url"> URL </label>
+            <input type="url" name="url" id="field-url" placeholder="https://url.to/rss/feed/">
 
-            <form>
-                <fieldset>
-                    <label for="field-url"> URL </label>
-                    <input type="text" name="url" id="field-url">
-
-                    <button class="button-primary" type="submit"> Add </button>
-                </fieldset>
-            </form>
-        </section>
-    </main>
+            <button class="button-primary" type="submit"> Add </button>
+            <a class="button button-clear" href="{{ url_for('home') }}"> Cancel </a>
+        </fieldset>
+    </form>
 {% endblock %}

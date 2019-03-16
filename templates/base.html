@@ -29,6 +29,14 @@
         {% endif %}
     {% endwith %}
 
-    {% block content %}{% endblock %}
+    <main role="main">
+        <section class="container">
+            <header>
+                <h2> {% block header %}{% endblock %} </h2>
+            </header>
+
+            {% block content %}{% endblock %}
+        </section>
+    </main>
 </body>
 </html>

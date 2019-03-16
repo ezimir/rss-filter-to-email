@@ -3,10 +3,9 @@
 
 {% block header %}Add Feed{% endblock %}
 {% block content %}
-    <form autocomplete="false" method="post">
+    <form autocomplete="off" method="post">
         <fieldset>
-            <label for="field-url"> URL </label>
-            <input type="url" name="url" id="field-url" placeholder="https://url.to/rss/feed/">
+            {{ render_field(form.url, placeholder='https://example.url/to/rss') }}
 
             <button class="button-primary" type="submit"> Add </button>
             <a class="button button-clear" href="{{ url_for('home') }}"> Cancel </a>

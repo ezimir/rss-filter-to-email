@@ -4,8 +4,10 @@
 
 import json
 
-from flask import Flask
-from flask import flash, render_template
+from flask import Flask, request
+from flask import flash, render_template, redirect, url_for
+from wtforms import Form, validators
+from wtforms.fields.html5 import URLField
 
 
 
@@ -29,7 +31,14 @@ def home():
     return render_template('home.html', **context)
 
 
-@app.route('/add-feed')
+class AddFeedForm(Form):
+    url = URLField('URL', [validators.DataRequired()])
+
+@app.route('/add-feed', methods = ['GET', 'POST'])
 def add_feed():
-    return render_template('add_feed.html')
+    form = AddFeedForm(request.form)
+    if request.method == 'POST' and form.validate():
+        flash('Saved')
+        return redirect(url_for('home'))
+    return render_template('add_feed.html', form = form)
 

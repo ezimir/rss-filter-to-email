@@ -36,8 +36,11 @@ def home():
     return render_template('home.html', **context)
 
 
-    url = URLField('URL', [validators.DataRequired()])
 class AddFeedForm(FlaskForm):
+    url = URLField('URL', [
+        validators.DataRequired(),
+        validators.URL(),
+    ])
 
 @app.route('/add-feed', methods = ['GET', 'POST'])
 def add_feed():

@@ -30,7 +30,7 @@ DATA_FILE = 'feeds.json'
 def home():
     context = {}
     try:
-        context['feeds'] = json.load(open(DATA_FILE))
+        context.update(json.load(open(DATA_FILE)))
 
     except FileNotFoundError:
         flash('Data file "{}" not found.'.format(DATA_FILE), 'error')
@@ -48,16 +48,22 @@ class AddFeedForm(FlaskForm):
 def add_feed():
     form = AddFeedForm(request.form)
     if request.method == 'POST' and form.validate():
-        with open(DATA_FILE, 'a+') as f:
+        feeds = []
+        if os.path.exists(DATA_FILE):
             try:
-                feeds = json.load(f)
+                feeds = json.load(open(DATA_FILE))['feeds']
+
             except json.decoder.JSONDecodeError:
-                feeds = []
+                pass
+
+        with open(DATA_FILE, 'w+') as f:
             feeds.append({
                 'id': str(uuid.uuid4()),
                 'url': form.data['url'],
             })
-            json.dump(feeds, f, indent = 4)
+            f.truncate(0)
+            json.dump({'feeds': feeds}, f, indent = 4)
+
         flash('Feed saved!')
         return redirect(url_for('home'))
     return render_template('add_feed.html', form = form)

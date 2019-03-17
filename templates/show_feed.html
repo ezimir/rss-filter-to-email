@@ -25,9 +25,12 @@
                     <div class="feed-content">
                         {{ entry.summary|safe }}
 
-                        {% for content in entry.content %}
-                            {{ content.value|safe }}
-                        {% endfor %}
+                        <details>
+                            <summary> Content Preview </summary>
+                            {% for content in entry.content %}
+                                {{ content.value|safe }}
+                            {% endfor %}
+                        </details>
                     </div>
                 </blockquote>
             {% endfor %}

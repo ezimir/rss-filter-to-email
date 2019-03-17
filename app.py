@@ -4,6 +4,7 @@
 
 import json
 import os
+import uuid
 
 from flask import Flask, request
 from flask import flash, render_template, redirect, url_for
@@ -53,6 +54,7 @@ def add_feed():
             except json.decoder.JSONDecodeError:
                 feeds = []
             feeds.append({
+                'id': str(uuid.uuid4()),
                 'url': form.data['url'],
             })
             json.dump(feeds, f, indent = 4)

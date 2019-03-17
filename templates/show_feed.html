@@ -22,9 +22,13 @@
 
                     {{ entry.updated }}
 
-                    {{ entry.summary|safe }}
+                    <div class="feed-content">
+                        {{ entry.summary|safe }}
 
-                    {{ entry.content.value|safe }}
+                        {% for content in entry.content %}
+                            {{ content.value|safe }}
+                        {% endfor %}
+                    </div>
                 </blockquote>
             {% endfor %}
         </div>

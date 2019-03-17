@@ -12,6 +12,7 @@ from flask import flash, render_template, redirect, url_for
 from flask_wtf import FlaskForm
 from flask_wtf.csrf import CSRFProtect
 from wtforms import validators
+from wtforms.fields import StringField
 from wtforms.fields.html5 import URLField
 
 
@@ -72,11 +73,32 @@ def add_feed():
         return redirect(url_for('home'))
     return render_template('add_feed.html', form = form)
 
-@app.route('/feed/<feed_id>')
+
+class FilterFeedForm(FlaskForm):
+    title = StringField('Title Filter', [
+        validators.Optional(),
+    ])
+
+@app.route('/feed/<feed_id>', methods = ['GET', 'POST'])
 def show_feed(feed_id):
     feeds = json.load(open(DATA_FILE))['feeds']
     feed = list(filter(lambda feed: feed['id'] == feed_id, feeds))[0]
+
+    form = FilterFeedForm(request.form)
+    if request.method == 'POST' and form.validate():
+        feed['filter'] = form.data['title']
+        with open(DATA_FILE, 'w+') as f:
+            f.truncate(0)
+            json.dump({'feeds': feeds}, f, indent = 4)
+
+        flash('Filter saved!')
+        return redirect(url_for('show_feed', feed_id = feed_id))
+
+    form.title.process_data(feed.get('filter'))
+
     data = feedparser.parse(feed['url'])
     feed['entries'] = data['entries']
-    return render_template('show_feed.html', feed = feed)
+    if feed.get('filter'):
+        feed['entries'] = filter(lambda entry: feed['filter'] in entry['title'], feed['entries'])
+    return render_template('show_feed.html', feed = feed, form = form)
 

@@ -10,6 +10,16 @@
                 Feed URL: {{ feed.url }}
             </article>
 
+            <form autocomplete="off" method="post">
+                {{ form.csrf_token }}
+
+                <fieldset>
+                    {{ render_field(form.title, placeholder='Text to contain') }}
+
+                    <button class="button-primary" type="submit"> Save </button>
+                </fieldset>
+            </form>
+
             <nav role="navigation">
                 <a class="button button-outline" href="{{ url_for('home') }}"> Back </a>
             </nav>

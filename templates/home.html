@@ -8,7 +8,7 @@
         {% if feeds %}
             <ul>
                 {% for feed in feeds %}
-                    <li> {{ feed.url }} </li>
+                    <li> <a href="{{ url_for('show_feed', feed_id = feed.id) }}"> {{ feed.title }} </li>
                 {% endfor %}
             </ul>
         {% else %}

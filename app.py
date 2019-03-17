@@ -2,6 +2,7 @@
 
 
 
+import feedparser
 import json
 import os
 import uuid
@@ -57,9 +58,12 @@ def add_feed():
                 pass
 
         with open(DATA_FILE, 'w+') as f:
+            response = feedparser.parse(form.data['url'])
+            title = response.get('feed', {}).get('title', '')
             feeds.append({
                 'id': str(uuid.uuid4()),
                 'url': form.data['url'],
+                'title': title,
             })
             f.truncate(0)
             json.dump({'feeds': feeds}, f, indent = 4)
@@ -67,4 +71,12 @@ def add_feed():
         flash('Feed saved!')
         return redirect(url_for('home'))
     return render_template('add_feed.html', form = form)
+
+@app.route('/feed/<feed_id>')
+def show_feed(feed_id):
+    feeds = json.load(open(DATA_FILE))['feeds']
+    feed = list(filter(lambda feed: feed['id'] == feed_id, feeds))[0]
+    data = feedparser.parse(feed['url'])
+    feed['entries'] = data['entries']
+    return render_template('show_feed.html', feed = feed)
 

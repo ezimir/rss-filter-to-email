@@ -27,11 +27,12 @@ def run():
     print('Now: {}'.format(now))
 
     last_run = data.get('last_run')
+
+    data['last_run'] = now.timetuple()
     if last_run:
         last_run = get_dt(tuple(last_run))
 
     else:
-        data['last_run'] = now.timetuple()
         with open(DATA_FILE, 'w+') as f:
             f.truncate(0)
             json.dump(data, f, indent = 4)
@@ -72,6 +73,9 @@ def run():
 
         print('Sending from {}...'.format(author['address']))
         send_mail(author, MAIL_TO, subject, text, html)
+    with open(DATA_FILE, 'w+') as f:
+        f.truncate(0)
+        json.dump(data, f, indent = 4)
 
 if __name__ == '__main__':
     run()

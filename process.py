@@ -4,11 +4,14 @@
 
 import feedparser
 import json
+import os
 import time
 
 from datetime import datetime
+from urllib.parse import urlsplit
 
 from app import DATA_FILE
+from mail import send_mail
 
 
 
@@ -42,9 +45,28 @@ def run():
         response = feedparser.parse(feed['url'])
         new_entries = [entry for entry in response['entries'] if last_run < get_dt(entry['published_parsed'])]
         if len(new_entries):
-            entries.extend((response['feed'], new_entries))
+            for new_entry in new_entries:
+                entries.append((response['feed'], new_entry))
 
-    print('New entries: {}.'.format(len(new_entries)))
+    MAIL_DOMAIN = os.environ.get('MAIL_DOMAIN')
+    MAIL_TO = os.environ.get('MAIL_TO')
+
+    print('New entries: {}.'.format(len(entries)))
+    entries.sort(key = lambda entry: entry[1]['published_parsed'], reverse = True)
+    for feed, entry in entries:
+        author = {
+            'name': feed['title'],
+            'address': '{}@{}'.format(
+                urlsplit(feed['link']).netloc,
+                MAIL_DOMAIN,
+            ),
+        }
+        subject = entry['title']
+        text = entry['summary']
+        html = ''.join([content['value'] for content in entry['content']])
+
+        print('Sending from {}...'.format(author['address']))
+        send_mail(author, MAIL_TO, subject, text, html)
 
 if __name__ == '__main__':
     run()

@@ -39,7 +39,7 @@ def run():
 
         return
 
-    print('Last Run: {}'.format(now))
+    print('Last Run: {}'.format(last_run))
     print('Checking {} feeds...'.format(len(data['feeds'])))
 
     entries = []

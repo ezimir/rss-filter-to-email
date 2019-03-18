@@ -8,6 +8,7 @@ import os
 import time
 
 from datetime import datetime
+from email.utils import format_datetime
 from urllib.parse import urlsplit
 
 from app import DATA_FILE
@@ -42,11 +43,15 @@ def run():
 
     entries = []
     for feed in data['feeds']:
-        response = feedparser.parse(feed['url'])
-        new_entries = [entry for entry in response['entries'] if last_run < get_dt(entry['published_parsed'])]
-        if len(new_entries):
-            for new_entry in new_entries:
-                entries.append((response['feed'], new_entry))
+        response = feedparser.parse(
+            feed['url'],
+            modified = format_datetime(last_run),
+        )
+        if response.status == 200:  # skip 304 for unmodified feeds
+            new_entries = [entry for entry in response['entries'] if last_run < get_dt(entry['published_parsed'])]
+            if len(new_entries):
+                for new_entry in new_entries:
+                    entries.append((response['feed'], new_entry))
 
     MAIL_DOMAIN = os.environ.get('MAIL_DOMAIN')
     MAIL_TO = os.environ.get('MAIL_TO')

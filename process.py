@@ -44,10 +44,18 @@ def run():
 
     entries = []
     for feed in data['feeds']:
-        response = feedparser.parse(
-            feed['url'],
-            modified = format_datetime(last_run),
-        )
+        parse_args = {
+            'modified': format_datetime(last_run),
+        }
+        if feed.get('etag'):
+            parse_args['etag'] = feed['etag']
+
+        response = feedparser.parse(feed['url'], **parse_args)
+        print('\t{}: {}'.format(response.status, feed['url']))
+
+        if hasattr(response, 'etag'):
+            feed['etag'] = response.etag
+
         if response.status == 200:  # skip 304 for unmodified feeds
             new_entries = [entry for entry in response['entries'] if last_run < get_dt(entry['published_parsed'])]
             if len(new_entries):

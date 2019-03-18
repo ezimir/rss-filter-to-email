@@ -65,22 +65,27 @@ def run():
     MAIL_DOMAIN = os.environ.get('MAIL_DOMAIN')
     MAIL_TO = os.environ.get('MAIL_TO')
 
-    print('New entries: {}.'.format(len(entries)))
-    entries.sort(key = lambda entry: entry[1]['published_parsed'], reverse = True)
-    for feed, entry in entries:
-        author = {
-            'name': feed['title'],
-            'address': '{}@{}'.format(
-                urlsplit(feed['link']).netloc,
-                MAIL_DOMAIN,
-            ),
-        }
-        subject = entry['title']
-        text = entry['summary']
-        html = ''.join([content['value'] for content in entry['content']])
+    if entries:
+        print('New entries: {}.'.format(len(entries)))
+        entries.sort(key = lambda entry: entry[1]['published_parsed'], reverse = True)
+        for feed, entry in entries:
+            author = {
+                'name': feed['title'],
+                'address': '{}@{}'.format(
+                    urlsplit(feed['link']).netloc,
+                    MAIL_DOMAIN,
+                ),
+            }
+            subject = entry['title']
+            text = entry['summary']
+            html = ''.join([content['value'] for content in entry['content']])
 
-        print('Sending from {}...'.format(author['address']))
-        send_mail(author, MAIL_TO, subject, text, html)
+            print('Sending from {}...'.format(author['address']))
+            send_mail(author, MAIL_TO, subject, text, html)
+
+    else:
+        print('No new entries.')
+
     with open(DATA_FILE, 'w+') as f:
         f.truncate(0)
         json.dump(data, f, indent = 4)

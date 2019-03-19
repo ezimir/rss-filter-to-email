@@ -60,17 +60,17 @@ def run():
             new_entries = [entry for entry in response['entries'] if last_run < get_dt(entry['published_parsed'])]
             if len(new_entries):
                 for new_entry in new_entries:
-                    entries.append((response['feed'], new_entry))
+                    entries.append((feed, response['feed'], new_entry))
 
     MAIL_DOMAIN = os.environ.get('MAIL_DOMAIN')
     MAIL_TO = os.environ.get('MAIL_TO')
 
     if entries:
         print('New entries: {}.'.format(len(entries)))
-        entries.sort(key = lambda entry: entry[1]['published_parsed'], reverse = True)
-        for feed, entry in entries:
+        entries.sort(key = lambda entry: entry[2]['published_parsed'], reverse = True)
+        for meta, feed, entry in entries:
             author = {
-                'name': feed['title'],
+                'name': meta['title'],
                 'address': '{}@{}'.format(
                     urlsplit(feed['link']).netloc,
                     MAIL_DOMAIN,

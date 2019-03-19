@@ -47,3 +47,10 @@ ExecStart=/path/to/rss-filter-virtualenv/bin/gunicorn --bind unix:/tmp/rss-filte
 [Install]
 WantedBy=multi-user.target
 ```
+
+Check every 15 minutes via cron:
+```cron
+export $(grep -v '^#' /path/to/rss-filter-virtualenv/envvars | grep -v '^$' | xargs) && cd /path/to/rss-filter/ && /path/to/rss-filter-virtualenv/bin/python process.py
+```
+
+Enjoy emails with new articles from selected RSS feeds.

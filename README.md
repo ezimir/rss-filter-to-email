@@ -2,6 +2,15 @@
 
 Reads entries from RSS feeds, filter them by title and sends them to selected email.
 
+## Descripton
+
+[Flask](https://flask.pocoo.org) with [WTForms](https://wtforms.readthedocs.io) to edit RSS list.
+
+[feedparser](https://pythonhosted.org/feedparser/) to read listed feeds, filter by title if required.
+
+Sends new entries via [email](https://docs.python.org/3.6/library/email.html), if set to check periodically.
+
+
 ## Installation
 
 Clone to `/path/to/rss-filter`, prepare virtual env, etc..

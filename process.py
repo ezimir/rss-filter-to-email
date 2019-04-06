@@ -37,6 +37,7 @@ def run():
             f.truncate(0)
             json.dump(data, f, indent = 4)
 
+        print('Saved last run date.')
         return
 
     print('Last Run: {}'.format(last_run))

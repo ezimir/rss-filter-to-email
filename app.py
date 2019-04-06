@@ -89,8 +89,8 @@ class FeedForm(FlaskForm):
 
 @app.route('/feed/<feed_id>', methods = ['GET', 'POST'])
 def show_feed(feed_id):
-    feeds = json.load(open(DATA_FILE))['feeds']
-    feed = list(filter(lambda feed: feed['id'] == feed_id, feeds))[0]
+    data = json.load(open(DATA_FILE))
+    feed = list(filter(lambda feed: feed['id'] == feed_id, data['feeds']))[0]
 
     attrs = ['url', 'title', 'filter']
     form = FeedForm(request.form)
@@ -100,7 +100,7 @@ def show_feed(feed_id):
 
         with open(DATA_FILE, 'w+') as f:
             f.truncate(0)
-            json.dump({'feeds': feeds}, f, indent = 4)
+            json.dump(data, f, indent = 4)
 
         flash('Feed saved!')
         return redirect(url_for('home'))
@@ -114,8 +114,8 @@ def show_feed(feed_id):
 
 @app.route('/feed/<feed_id>/preview')
 def preview_feed(feed_id):
-    feeds = json.load(open(DATA_FILE))['feeds']
-    feed = list(filter(lambda feed: feed['id'] == feed_id, feeds))[0]
+    data = json.load(open(DATA_FILE))
+    feed = list(filter(lambda feed: feed['id'] == feed_id, data['feeds']))[0]
 
     data = feedparser.parse(feed['url'])
     feed['entries'] = data['entries']

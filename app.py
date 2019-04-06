@@ -65,6 +65,7 @@ def add_feed():
                 'id': str(uuid.uuid4()),
                 'url': form.data['url'],
                 'title': title,
+                'original': title,
             })
             f.truncate(0)
             json.dump({'feeds': feeds}, f, indent = 4)

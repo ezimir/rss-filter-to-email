@@ -10,7 +10,21 @@
 
         <fieldset>
             {{ render_field(form.url, placeholder='http://url.to/feed.rss') }}
-            {{ render_field(form.title, placeholder='Feed Title') }}
+            <div class="row">
+                <div class="column">
+                    {{ render_field(form.title, placeholder='Feed Title') }}
+                </div>
+                <div class="column column-auto">
+                    <label> Use Original </label>
+                    <button
+                        class="button button-outline"
+                        id="copy-from-original"
+                        data-value="{{ feed.original }}"
+                    >
+                        Copy from feed data
+                    </button>
+                </div>
+            </div>
             {{ render_field(form.filter, placeholder='Text to contain') }}
 
             <button class="button-primary" type="submit"> Save </button>
@@ -20,5 +34,20 @@
     <nav role="navigation">
         <a class="button button-outline" href="{{ url_for('home') }}"> Back </a>
     </nav>
+{% endblock %}
+
+
+{% block footer %}
+    {{ super() }}
+
+    <script>
+        let button = document.querySelector('#copy-from-original');
+        button.addEventListener('click', e => {
+            e.preventDefault();
+            let value = button.dataset.value;
+            let input = document.querySelector('#title');
+            input.value = value;
+        });
+    </script>
 {% endblock %}
 

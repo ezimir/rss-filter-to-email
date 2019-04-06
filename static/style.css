@@ -10,6 +10,11 @@ body > nav {
         margin: 0;
     }
 
+.column.column-auto {
+    flex: 0 0 auto;
+    width: auto;
+}
+
 .feed-entry .feed-content * {
     font-size: 1em;
 }

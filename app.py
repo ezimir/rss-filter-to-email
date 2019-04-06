@@ -74,27 +74,41 @@ def add_feed():
     return render_template('add_feed.html', form = form)
 
 
-class FilterFeedForm(FlaskForm):
-    title = StringField('Title Filter', [
+class FeedForm(FlaskForm):
+    url = URLField('URL', [
+        validators.DataRequired(),
+        validators.URL(),
+    ])
+    title = StringField('Title', [
+        validators.DataRequired(),
+    ])
+    filter = StringField('Filter', [
         validators.Optional(),
     ])
+
 
 @app.route('/feed/<feed_id>', methods = ['GET', 'POST'])
 def show_feed(feed_id):
     feeds = json.load(open(DATA_FILE))['feeds']
     feed = list(filter(lambda feed: feed['id'] == feed_id, feeds))[0]
 
-    form = FilterFeedForm(request.form)
+    attrs = ['url', 'title', 'filter']
+    form = FeedForm(request.form)
     if request.method == 'POST' and form.validate():
-        feed['filter'] = form.data['title']
+        updated = {key: val for key, val in form.data.items() if key in attrs}
+        feed.update(updated)
+
         with open(DATA_FILE, 'w+') as f:
             f.truncate(0)
             json.dump({'feeds': feeds}, f, indent = 4)
 
-        flash('Filter saved!')
-        return redirect(url_for('show_feed', feed_id = feed_id))
+        flash('Feed saved!')
+        return redirect(url_for('home'))
 
-    form.title.process_data(feed.get('filter'))
+    for attr in attrs:
+        field = getattr(form, attr)
+        field.process_data(feed.get(attr))
+
     return render_template('show_feed.html', feed = feed, form = form)
 
 

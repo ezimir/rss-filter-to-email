@@ -5,15 +5,13 @@
 
 
 {% block content %}
-    <article id="feed">
-        Feed URL: {{ feed.url }}
-    </article>
-
     <form autocomplete="off" method="post">
         {{ form.csrf_token }}
 
         <fieldset>
-            {{ render_field(form.title, placeholder='Text to contain') }}
+            {{ render_field(form.url, placeholder='http://url.to/feed.rss') }}
+            {{ render_field(form.title, placeholder='Feed Title') }}
+            {{ render_field(form.filter, placeholder='Text to contain') }}
 
             <button class="button-primary" type="submit"> Save </button>
         </fieldset>

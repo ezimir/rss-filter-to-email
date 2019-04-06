@@ -95,10 +95,18 @@ def show_feed(feed_id):
         return redirect(url_for('show_feed', feed_id = feed_id))
 
     form.title.process_data(feed.get('filter'))
+    return render_template('show_feed.html', feed = feed, form = form)
+
+
+@app.route('/feed/<feed_id>/preview')
+def preview_feed(feed_id):
+    feeds = json.load(open(DATA_FILE))['feeds']
+    feed = list(filter(lambda feed: feed['id'] == feed_id, feeds))[0]
 
     data = feedparser.parse(feed['url'])
     feed['entries'] = data['entries']
     if feed.get('filter'):
         feed['entries'] = filter(lambda entry: feed['filter'] in entry['title'], feed['entries'])
-    return render_template('show_feed.html', feed = feed, form = form)
+    return render_template('preview_feed.html', feed = feed)
+
 

@@ -3,48 +3,24 @@
 
 {% block header %}Feed: {{ feed.title }}{% endblock %}
 
+
 {% block content %}
-    <div class="row">
-        <div class="column">
-            <article id="feed">
-                Feed URL: {{ feed.url }}
-            </article>
+    <article id="feed">
+        Feed URL: {{ feed.url }}
+    </article>
 
-            <form autocomplete="off" method="post">
-                {{ form.csrf_token }}
+    <form autocomplete="off" method="post">
+        {{ form.csrf_token }}
 
-                <fieldset>
-                    {{ render_field(form.title, placeholder='Text to contain') }}
+        <fieldset>
+            {{ render_field(form.title, placeholder='Text to contain') }}
 
-                    <button class="button-primary" type="submit"> Save </button>
-                </fieldset>
-            </form>
+            <button class="button-primary" type="submit"> Save </button>
+        </fieldset>
+    </form>
 
-            <nav role="navigation">
-                <a class="button button-outline" href="{{ url_for('home') }}"> Back </a>
-            </nav>
-        </div>
-
-        <div class="column column-67">
-            {% for entry in feed.entries %}
-                <blockquote class="feed-entry">
-                    <h4> {{ entry.title }} </h4>
-
-                    {{ entry.updated }}
-
-                    <div class="feed-content">
-                        {{ entry.summary|safe }}
-
-                        <details>
-                            <summary> Content Preview </summary>
-                            {% for content in entry.content %}
-                                {{ content.value|safe }}
-                            {% endfor %}
-                        </details>
-                    </div>
-                </blockquote>
-            {% endfor %}
-        </div>
-    </div>
+    <nav role="navigation">
+        <a class="button button-outline" href="{{ url_for('home') }}"> Back </a>
+    </nav>
 {% endblock %}
 

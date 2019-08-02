@@ -7,6 +7,7 @@ import json
 import os
 import uuid
 
+from bs4 import BeautifulSoup
 from flask import Flask, request
 from flask import flash, render_template, redirect, url_for
 from flask_wtf import FlaskForm
@@ -122,6 +123,13 @@ def preview_feed(feed_id):
     feed['entries'] = data['entries']
     if feed.get('filter'):
         feed['entries'] = filter(lambda entry: feed['filter'] in entry['title'], feed['entries'])
+    for entry in feed['entries']:
+        for content in entry['content']:
+            soup = BeautifulSoup(content['value'])
+            images = soup.find_all("img")
+            for image in images:
+                image['style'] = 'max-width: 100%'
+            content['value'] = soup.prettify()
     return render_template('preview_feed.html', feed = feed)
 
 

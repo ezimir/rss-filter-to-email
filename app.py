@@ -6,9 +6,7 @@ import feedparser
 import json
 import os
 import uuid
-from urllib.parse import urlparse, urljoin
 
-from bs4 import BeautifulSoup
 from flask import Flask, request
 from flask import flash, render_template, redirect, url_for
 from flask_wtf import FlaskForm
@@ -16,6 +14,8 @@ from flask_wtf.csrf import CSRFProtect
 from wtforms import validators
 from wtforms.fields import StringField
 from wtforms.fields.html5 import URLField
+
+from entries import Feed
 
 
 
@@ -119,30 +119,10 @@ def show_feed(feed_id):
 def preview_feed(feed_id):
     data = json.load(open(DATA_FILE))
     feed = list(filter(lambda feed: feed['id'] == feed_id, data['feeds']))[0]
-    domain = "{url.scheme}://{url.netloc}".format(url = urlparse(feed['url']))
 
     data = feedparser.parse(feed['url'])
     feed['entries'] = data['entries']
-    if feed.get('filter'):
-        feed['entries'] = filter(lambda entry: feed['filter'] in entry['title'], feed['entries'])
-    for entry in feed['entries']:
-        # clear HTML from summary
-        if entry['summary'].startswith('<![CDATA['):
-            entry['summary'] = entry['summary'][9:-3]
-        soup = BeautifulSoup(entry['summary'], 'html.parser')
-        entry['summary'] = soup.text
-
-        # fix images
-        for content in entry.get('content', [{"value": ""}]):
-            soup = BeautifulSoup(content['value'], 'html.parser')
-            images = soup.find_all("img")
-            for image in images:
-                # ensure max width
-                image['style'] = 'max-width: 100%'
-                # ensure full src path
-                if image['src'].startswith('/'):
-                    image['src'] = urljoin(domain, image['src'])
-            content['value'] = soup.prettify()
+    feed = Feed(feed)
     return render_template('preview_feed.html', feed = feed)
 
 

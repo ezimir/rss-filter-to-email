@@ -50,6 +50,10 @@ class Entry(Property):
             content['value'] = soup.prettify()
         return contents
 
+    @property
+    def content_flat(self):
+        return ''.join([content['value'] for content in self.content])
+
 
 class Feed(Property):
 

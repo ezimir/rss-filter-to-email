@@ -133,7 +133,7 @@ def preview_feed(feed_id):
         entry['summary'] = soup.text
 
         # fix images
-        for content in entry['content']:
+        for content in entry.get('content', [{"value": ""}]):
             soup = BeautifulSoup(content['value'], 'html.parser')
             images = soup.find_all("img")
             for image in images:

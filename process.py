@@ -7,7 +7,7 @@ import json
 import os
 import time
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from email.utils import format_datetime
 from urllib.parse import urlsplit
 
@@ -18,7 +18,10 @@ from mail import send_mail
 
 
 def get_dt(time_struct):
-    return datetime.fromtimestamp(time.mktime(time_struct))
+    try:
+        return datetime.fromtimestamp(time.mktime(time_struct))
+    except ValueError:
+        return datetime.utcnow() - timedelta(days = 365)
 
 
 def run():

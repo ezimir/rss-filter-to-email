@@ -6,6 +6,7 @@ import feedparser
 import json
 import os
 import uuid
+from urllib.parse import urlparse, urljoin
 
 from bs4 import BeautifulSoup
 from flask import Flask, request
@@ -118,17 +119,23 @@ def show_feed(feed_id):
 def preview_feed(feed_id):
     data = json.load(open(DATA_FILE))
     feed = list(filter(lambda feed: feed['id'] == feed_id, data['feeds']))[0]
+    domain = "{url.scheme}://{url.netloc}".format(url = urlparse(feed['url']))
 
     data = feedparser.parse(feed['url'])
     feed['entries'] = data['entries']
     if feed.get('filter'):
         feed['entries'] = filter(lambda entry: feed['filter'] in entry['title'], feed['entries'])
     for entry in feed['entries']:
+        # fix images
         for content in entry['content']:
             soup = BeautifulSoup(content['value'])
             images = soup.find_all("img")
             for image in images:
+                # ensure max width
                 image['style'] = 'max-width: 100%'
+                # ensure full src path
+                if image['src'].startswith('/'):
+                    image['src'] = urljoin(domain, image['src'])
             content['value'] = soup.prettify()
     return render_template('preview_feed.html', feed = feed)
 

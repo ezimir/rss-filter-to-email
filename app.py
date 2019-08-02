@@ -127,6 +127,8 @@ def preview_feed(feed_id):
         feed['entries'] = filter(lambda entry: feed['filter'] in entry['title'], feed['entries'])
     for entry in feed['entries']:
         # clear HTML from summary
+        if entry['summary'].startswith('<![CDATA['):
+            entry['summary'] = entry['summary'][9:-3]
         soup = BeautifulSoup(entry['summary'], 'html.parser')
         entry['summary'] = soup.text
 

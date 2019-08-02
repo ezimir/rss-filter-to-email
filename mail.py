@@ -41,5 +41,6 @@ def send_mail(author, recipient, subject, text, html):
         server.send_message(msg)
 
     finally:
-        server.quit()
+        if 'server' in locals():
+            server.quit()
 

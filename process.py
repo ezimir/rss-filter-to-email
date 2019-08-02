@@ -60,9 +60,9 @@ def run():
         if response.status == 200:  # skip 304 for unmodified feeds
             new_entries = response['entries']
             # filter malformed publish date
-            new_entries = [entry for entry in entries if entry['published_parsed'].tm_year > 1]
+            new_entries = [entry for entry in new_entries if entry['published_parsed'].tm_year > 1]
             # filter entries from before last run
-            new_entries = [entry for entry in entries if last_run < get_dt(entry['published_parsed'])]
+            new_entries = [entry for entry in new_entries if last_run < get_dt(entry['published_parsed'])]
             if len(new_entries):
                 for new_entry in new_entries:
                     entries.append((feed, response['feed'], new_entry))

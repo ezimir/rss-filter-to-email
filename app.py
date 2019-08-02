@@ -126,9 +126,13 @@ def preview_feed(feed_id):
     if feed.get('filter'):
         feed['entries'] = filter(lambda entry: feed['filter'] in entry['title'], feed['entries'])
     for entry in feed['entries']:
+        # clear HTML from summary
+        soup = BeautifulSoup(entry['summary'], 'html.parser')
+        entry['summary'] = soup.text
+
         # fix images
         for content in entry['content']:
-            soup = BeautifulSoup(content['value'])
+            soup = BeautifulSoup(content['value'], 'html.parser')
             images = soup.find_all("img")
             for image in images:
                 # ensure max width

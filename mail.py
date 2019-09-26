@@ -33,14 +33,9 @@ def send_mail(author, recipient, subject, text, html):
     msg.set_content(text)
     msg.add_alternative(html, subtype = 'html')
 
-    try:
-        server = smtplib.SMTP(
-            os.environ.get('MAIL_SERVER'),
-            os.environ.get('MAIL_PORT'),
-        )
-        server.send_message(msg)
-
-    finally:
-        if 'server' in locals():
-            server.quit()
+    server = smtplib.SMTP(
+        os.environ.get('MAIL_SERVER'),
+        os.environ.get('MAIL_PORT'),
+    )
+    server.send_message(msg)
 

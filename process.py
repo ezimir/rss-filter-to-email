@@ -63,6 +63,8 @@ def run():
 
         if response.status == 200:  # skip 304 for unmodified feeds
             new_entries = response['entries']
+            # filter missing publish date
+            new_entries = [entry for entry in new_entries if 'published_parsed' in entry]
             # filter malformed publish date
             new_entries = [entry for entry in new_entries if entry['published_parsed'].tm_year > 1]
             # filter entries from before last run

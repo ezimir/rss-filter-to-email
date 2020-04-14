@@ -9,8 +9,7 @@
             <ul>
                 {% for feed in feeds %}
                 <li>
-                    <a href="{{ url_for('show_feed', feed_id = feed.id) }}"> {{ feed.title }} </a>
-                    (<a href="{{ url_for('preview_feed', feed_id = feed.id) }}">preview</a>)
+                    <a href="{{ url_for('feed', feed_id = feed.id) }}"> {{ feed.title }} </a>
                 </li>
                 {% endfor %}
             </ul>

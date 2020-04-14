@@ -22,6 +22,11 @@ class Feeds:
 
         raise StopIteration
 
+    def get(self, feed_id):
+        for feed in self.feeds:
+            if feed.id == feed_id:
+                return feed
+
 
 class Feed:
     attrs = ["id", "url", "title", "filter"]

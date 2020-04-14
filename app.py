@@ -87,28 +87,20 @@ class FeedForm(FlaskForm):
 
 
 @app.route("/feed/<feed_id>", methods=["GET", "POST"])
-def show_feed(feed_id):
-    data = json.load(open(DATA_FILE))
-    feed = list(filter(lambda feed: feed["id"] == feed_id, data["feeds"]))[0]
+def feed(feed_id):
+    context = {}
+    feeds = Feeds(DATA_FILE)
+    context["feed"] = feed = feeds.get(feed_id)
 
-    attrs = ["url", "title", "filter"]
-    form = FeedForm(request.form)
+    context["form"] = form = FeedForm(request.form)
     if request.method == "POST" and form.validate():
-        updated = {key: val for key, val in form.data.items() if key in attrs}
-        feed.update(updated)
-
-        with open(DATA_FILE, "w+") as f:
-            f.truncate(0)
-            json.dump(data, f, indent=4)
-
+        feeds.update(feed_id, form.data)
         flash("Feed saved!")
-        return redirect(url_for("home"))
 
-    for attr in attrs:
-        field = getattr(form, attr)
-        field.process_data(feed.get(attr))
-
-    return render_template("show_feed.html", feed=feed, form=form)
+    for field in form:
+        if hasattr(feed, field.name):
+            field.process_data(getattr(feed, field.name))
+    return render_template("feed.html", **context)
 
 
 @app.route("/feed/<feed_id>/preview")

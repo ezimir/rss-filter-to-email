@@ -154,4 +154,4 @@ class Entry:
         return content
 
     def matches(self, text):
-        return text in self.title
+        return text.lower() in self.title.lower()

@@ -8,9 +8,7 @@ import feedparser
 class Feeds:
     def __init__(self, path):
         self.path = path
-        with open(path) as f:
-            self.data = json.load(f)
-            self.feeds = [Feed(f) for f in self.data["feeds"]]
+        self.read()
 
     def __iter__(self):
         self.i = 0
@@ -36,6 +34,18 @@ class Feeds:
                 break
 
         self.save()
+
+    def delete(self, feed):
+        ids = list([f["id"] for f in self.data["feeds"]])
+        i = ids.index(feed.id)
+        del self.data["feeds"][i]
+        self.save()
+        self.read()
+
+    def read(self):
+        with open(self.path) as f:
+            self.data = json.load(f)
+            self.feeds = [Feed(f) for f in self.data["feeds"]]
 
     def save(self):
         with open(self.path, "w+") as f:

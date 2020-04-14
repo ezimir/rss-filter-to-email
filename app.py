@@ -91,11 +91,17 @@ def feed(feed_id):
     feeds = Feeds(DATA_FILE)
     context["feed"] = feed = feeds.get(feed_id)
 
+    if feed is None:
+        return redirect(url_for("home"))
+
     context["form"] = form = FeedForm(request.form)
     if request.method == "POST" and form.validate():
+        if request.form["action"] == "delete":
+            feeds.delete(feed)
+            flash("Feed deleted!")
+            return redirect(url_for("home"))
         feed.update(form.data)
         feeds.update(feed)
-        flash("Feed saved!")
         return redirect(url_for("feed", feed_id=feed_id))
 
     for field in form:

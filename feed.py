@@ -2,8 +2,12 @@
 
 
 import json
-import uuid
 import feedparser
+import html
+import re
+import requests
+import tempfile
+import uuid
 
 from bs4 import BeautifulSoup
 
@@ -94,10 +98,36 @@ class Feed:
 
         self.read()
 
+    def get_fixed_xml(self):
+        r = requests.get(self.url)
+        xml = r.text.replace("\n", "")
+
+        def escape(match):
+            return (
+                "<description>&lt;![CDATA[" + html.escape(match.group(1)) + "]]&gt;</description>"
+            )
+
+        offset = 0
+        for match in re.finditer(r"<item>.*?<description>(.*?)</description>.*?</item>", xml):
+            match_xml = match.group()
+            original = len(match_xml)
+            match_xml = re.sub("<description>(.*?)</description>", escape, match_xml)
+            start = match.start() + offset
+            end = match.end() + offset
+            xml = xml[:start] + match_xml + xml[end:]
+            offset += len(match_xml) - original
+
+        return bytes(xml, r.encoding or "utf8")
+
     @property
     def entries(self):
         if self._feed is None:
             self._feed = feedparser.parse(self.url)
+            exc = self._feed.get("bozo_exception")
+            if exc and "undefined entity" in exc.getMessage():
+                with tempfile.NamedTemporaryFile(delete=False) as f:
+                    f.write(self.get_fixed_xml())
+                    self._feed = feedparser.parse(f.name)
 
         if self._entries is None:
             self._entries = [Entry(e) for e in self._feed["entries"]]

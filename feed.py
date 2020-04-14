@@ -121,6 +121,8 @@ class Entry:
         "summary": "summary",
     }
 
+    summary_treshold = 1000
+
     def __init__(self, data):
         self.data = data
         self.read()
@@ -140,6 +142,14 @@ class Entry:
             content = content[9:-3]
         soup = BeautifulSoup(content, "html.parser")
         content = soup.text
+        if len(content) > self.summary_treshold:
+            first_paragraph = soup.find("p")
+            if first_paragraph:
+                content = first_paragraph.text
+            elif "." in content:
+                content = content.split(".")[0]
+            else:
+                content = content[: self.summary_treshold]
         content = content.replace("Read full entry", "")
         return content
 

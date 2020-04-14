@@ -9,6 +9,10 @@
         <a class="button button-outline" href="{{ url_for('home') }}"> Back </a>
     </nav>
 
+    <p>
+        Feed URL: <a href="{{ feed.url }}">{{ feed.url }}</a>
+    </p>
+
     {% if feed.exception %}
         <blockquote>
             {{ feed.exception }}

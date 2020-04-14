@@ -94,8 +94,10 @@ def feed(feed_id):
 
     context["form"] = form = FeedForm(request.form)
     if request.method == "POST" and form.validate():
-        feeds.update(feed_id, form.data)
+        feed.update(form.data)
+        feeds.update(feed)
         flash("Feed saved!")
+        return redirect(url_for("feed", feed_id=feed_id))
 
     for field in form:
         if hasattr(feed, field.name):

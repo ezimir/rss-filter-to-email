@@ -25,9 +25,15 @@
     {% endif %}
 {% endmacro %}
 
-    <nav role="navigation">
+    <nav class="navbar">
         <section class="container">
-            <h1 class="title"> RSS Filter to Email </h1>
+            <h1 class="title">
+                {% if request.url_rule.endpoint != "home" %}
+                    <a href="{{ url_for('home') }}"> RSS Filter to Email </a>
+                {% else %}
+                    RSS Filter to Email
+                {% endif %}
+            </h1>
         </section>
     </nav>
 

@@ -1,10 +1,10 @@
 
-body > nav {
+.navbar {
     background: #f4f5f6;
     border-bottom: .1rem solid #d1d1d1;
     margin-bottom: 2em;
 }
-    body > nav .title {
+    .navbar .title {
         font-size: 1.6em;
         line-height: 2em;
         margin: 0;

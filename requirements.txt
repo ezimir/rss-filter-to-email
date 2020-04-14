@@ -5,13 +5,15 @@
 #    pip-compile
 #
 beautifulsoup4==4.9.0     # via -r requirements.in
+blinker==1.4              # via flask-debugtoolbar
 click==7.1.1              # via flask
 feedparser==5.2.1         # via -r requirements.in
+flask-debugtoolbar==0.11.0  # via -r requirements.in
 flask-wtf==0.14.3         # via -r requirements.in
-flask==1.1.2              # via -r requirements.in, flask-wtf
-itsdangerous==1.1.0       # via flask, flask-wtf
+flask==1.1.2              # via -r requirements.in, flask-debugtoolbar, flask-wtf
+itsdangerous==1.1.0       # via flask, flask-debugtoolbar, flask-wtf
 jinja2==2.11.2            # via flask
 markupsafe==1.1.1         # via jinja2
 soupsieve==2.0            # via beautifulsoup4
-werkzeug==1.0.1           # via flask
+werkzeug==1.0.1           # via flask, flask-debugtoolbar
 wtforms==2.2.1            # via flask-wtf

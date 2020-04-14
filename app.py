@@ -40,7 +40,7 @@ def home():
 
 
 class AddFeedForm(FlaskForm):
-    url = URLField("URL", [validators.DataRequired(), validators.URL(),])
+    url = URLField("URL", [validators.DataRequired(), validators.URL()])
 
 
 @app.route("/add-feed", methods=["GET", "POST"])
@@ -75,9 +75,9 @@ def add_feed():
 
 
 class FeedForm(FlaskForm):
-    url = URLField("URL", [validators.DataRequired(), validators.URL(),])
-    title = StringField("Title", [validators.DataRequired(),])
-    filter = StringField("Filter", [validators.Optional(),])
+    url = URLField("URL", [validators.DataRequired(), validators.URL()])
+    title = StringField("Title", [validators.DataRequired()])
+    filter = StringField("Filter", [validators.Optional()])
 
 
 @app.route("/feed/<feed_id>", methods=["GET", "POST"])

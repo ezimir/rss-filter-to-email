@@ -111,6 +111,8 @@ def preview_feed(feed_id):
     feed = list(filter(lambda feed: feed["id"] == feed_id, data["feeds"]))[0]
 
     data = feedparser.parse(feed["url"])
+    if "bozo" in data:
+        feed["exception"] = data["bozo_exception"]
     feed["entries"] = data["entries"]
     feed = Feed(feed)
     return render_template("preview_feed.html", feed=feed)

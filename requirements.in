@@ -3,3 +3,4 @@ Flask-WTF
 flask-debugtoolbar
 feedparser
 beautifulsoup4
+requests

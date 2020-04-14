@@ -5,6 +5,8 @@ import json
 import uuid
 import feedparser
 
+from bs4 import BeautifulSoup
+
 
 class Feeds:
     def __init__(self, path):
@@ -116,6 +118,7 @@ class Entry:
         "title": "title",
         "url": "link",
         "updated": "published",
+        "summary": "summary",
     }
 
     def __init__(self, data):
@@ -124,7 +127,21 @@ class Entry:
 
     def read(self):
         for target, source in self.attrs.items():
-            setattr(self, target, self.data.get(source))
+            val = self.data.get(source)
+            method_name = f"read_{target}"
+            if hasattr(self, method_name):
+                method = getattr(self, method_name)
+                val = method(val)
+
+            setattr(self, target, val)
+
+    def read_summary(self, content):
+        if content.startswith("<![CDATA["):
+            content = content[9:-3]
+        soup = BeautifulSoup(content, "html.parser")
+        content = soup.text
+        content = content.replace("Read full entry", "")
+        return content
 
     def matches(self, text):
         return text in self.title

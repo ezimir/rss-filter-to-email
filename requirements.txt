@@ -4,14 +4,14 @@
 #
 #    pip-compile
 #
-beautifulsoup4==4.8.0
-click==7.0                # via flask
-feedparser==5.2.1
-flask-wtf==0.14.2
-flask==1.0.2
-itsdangerous==1.1.0       # via flask
-jinja2==2.10.1            # via flask
+beautifulsoup4==4.9.0     # via -r requirements.in
+click==7.1.1              # via flask
+feedparser==5.2.1         # via -r requirements.in
+flask-wtf==0.14.3         # via -r requirements.in
+flask==1.1.2              # via -r requirements.in, flask-wtf
+itsdangerous==1.1.0       # via flask, flask-wtf
+jinja2==2.11.2            # via flask
 markupsafe==1.1.1         # via jinja2
-soupsieve==1.9.2          # via beautifulsoup4
-werkzeug==0.15.3          # via flask
+soupsieve==2.0            # via beautifulsoup4
+werkzeug==1.0.1           # via flask
 wtforms==2.2.1            # via flask-wtf

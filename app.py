@@ -5,15 +5,12 @@ import os
 
 from pathlib import Path
 
-from flask import Flask, request
-from flask import flash, render_template, redirect, url_for
+from flask import Flask
+from flask import request, flash, render_template, redirect, url_for
 from flask_debugtoolbar import DebugToolbarExtension
-from flask_wtf import FlaskForm
 from flask_wtf.csrf import CSRFProtect
-from wtforms import validators
-from wtforms.fields import StringField
-from wtforms.fields.html5 import URLField
 
+import forms
 from feed import Feeds
 
 
@@ -34,23 +31,20 @@ DATA_FILE = "feeds.json"
 @app.route("/")
 def home():
     context = {}
-    try:
+    path = Path(DATA_FILE)
+    if path.exists():
         context["feeds"] = Feeds(DATA_FILE)
 
-    except FileNotFoundError:
+    else:
         flash('Data file "{}" not found.'.format(DATA_FILE), "error")
 
     return render_template("home.html", **context)
 
 
-class AddFeedForm(FlaskForm):
-    url = URLField("URL", [validators.DataRequired(), validators.URL()])
-
-
 @app.route("/add-feed", methods=["GET", "POST"])
 def add():
     context = {}
-    context["form"] = form = AddFeedForm(request.form)
+    context["form"] = form = forms.AddFeedForm(request.form)
     if request.method == "POST" and form.validate():
         path = Path(DATA_FILE)
         if not path.exists():
@@ -62,12 +56,6 @@ def add():
     return render_template("add.html", **context)
 
 
-class EditFeedForm(FlaskForm):
-    url = URLField("URL", [validators.DataRequired(), validators.URL()])
-    title = StringField("Title", [validators.DataRequired()])
-    filter = StringField("Filter", [validators.Optional()])
-
-
 @app.route("/feed/<feed_id>", methods=["GET", "POST"])
 def feed(feed_id):
     context = {}
@@ -77,7 +65,7 @@ def feed(feed_id):
     if feed is None:
         return redirect(url_for("home"))
 
-    context["form"] = form = EditFeedForm(request.form)
+    context["form"] = form = forms.EditFeedForm(request.form)
     if request.method == "POST" and form.validate():
         if request.form["action"] == "delete":
             feeds.delete(feed)

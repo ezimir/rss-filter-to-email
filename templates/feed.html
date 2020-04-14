@@ -30,6 +30,40 @@
             <button class="button-primary" type="submit"> Save </button>
         </fieldset>
     </form>
+
+    <p>
+        Entries found: {{ feed.entries|length }}
+        {% if feed.filter %}
+            <br>
+            Filtered: {{ feed.filtered|length }}
+        {% endif %}
+    </p>
+
+    {% for entry in feed.filtered %}
+        <blockquote class="feed-entry">
+            <h4> {{ entry.title }} </h4>
+
+            <p>
+                Updated: {{ entry.updated }}<br>
+                URL: <a href="{{ entry.url }}" target="_blank" rel="noopener">{{ entry.url }}</a>
+            </p>
+
+            {% if entry.summary %}
+                <div class="feed-content">
+                    {{ entry.summary }}
+
+                    {% if entry.content %}
+                        <details>
+                            <summary> Content Preview </summary>
+                            {% for content in entry.content %}
+                                {{ content.value|safe }}
+                            {% endfor %}
+                        </details>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </blockquote>
+    {% endfor %}
 {% endblock %}
 
 

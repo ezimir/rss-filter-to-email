@@ -16,7 +16,6 @@ from wtforms.fields import StringField
 from wtforms.fields.html5 import URLField
 
 from feed import Feeds
-from entries import Feed
 
 
 app = Flask(__name__)
@@ -102,17 +101,5 @@ def feed(feed_id):
     for field in form:
         if hasattr(feed, field.name):
             field.process_data(getattr(feed, field.name))
+
     return render_template("feed.html", **context)
-
-
-@app.route("/feed/<feed_id>/preview")
-def preview_feed(feed_id):
-    data = json.load(open(DATA_FILE))
-    feed = list(filter(lambda feed: feed["id"] == feed_id, data["feeds"]))[0]
-
-    data = feedparser.parse(feed["url"])
-    if "bozo" in data:
-        feed["exception"] = data["bozo_exception"]
-    feed["entries"] = data["entries"]
-    feed = Feed(feed)
-    return render_template("preview_feed.html", feed=feed)

@@ -2,6 +2,7 @@
 
 
 import json
+import feedparser
 
 
 class Feeds:
@@ -45,6 +46,9 @@ class Feeds:
 class Feed:
     attrs = ["id", "url", "title", "filter", "original"]
 
+    _feed = None
+    _entries = None
+
     def __init__(self, data):
         self.data = data
         for attr in self.attrs:
@@ -56,3 +60,37 @@ class Feed:
                 val = data.get(attr)
                 self.data[attr] = val
                 setattr(self, attr, val)
+
+    @property
+    def entries(self):
+        if self._feed is None:
+            self._feed = feedparser.parse(self.url)
+
+        if self._entries is None:
+            self._entries = [Entry(e) for e in self._feed["entries"]]
+
+        return self._entries
+
+    @property
+    def filtered(self):
+        entries = self.entries
+        if self.filter:
+            entries = [e for e in entries if e.matches(self.filter)]
+        return entries
+
+
+class Entry:
+    attrs = {
+        "id": "id",
+        "title": "title",
+        "url": "link",
+        "updated": "published",
+    }
+
+    def __init__(self, data):
+        self.data = data
+        for target, source in self.attrs.items():
+            setattr(self, target, self.data.get(source))
+
+    def matches(self, text):
+        return text in self.title

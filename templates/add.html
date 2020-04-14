@@ -2,9 +2,12 @@
 
 
 {% block header %}Add Feed{% endblock %}
+
+
 {% block content %}
     <form autocomplete="off" method="post">
         {{ form.csrf_token }}
+
         <fieldset>
             {{ render_field(form.url, placeholder='https://example.url/to/rss') }}
 

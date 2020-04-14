@@ -2,6 +2,7 @@
 
 
 import json
+import uuid
 import feedparser
 
 
@@ -27,29 +28,41 @@ class Feeds:
             if feed.id == feed_id:
                 return feed
 
+    def add(self, url):
+        feed = feedparser.parse(url)
+        title = feed.get("feed", {}).get("title", url)
+        self.feeds.append(
+            Feed({"id": str(uuid.uuid4()), "url": url, "title": title, "original": title})
+        )
+        self.save()
+
     def update(self, feed):
-        for i, _ in enumerate(self.data["feeds"]):
-            if feed.id == self.data["feeds"][i]["id"]:
-                self.data["feeds"][i] = feed.data
+        for i, _ in enumerate(self.feeds):
+            if feed.id == self.feeds[i].id:
+                self.feeds[i] = feed
                 break
 
         self.save()
 
     def delete(self, feed):
-        ids = list([f["id"] for f in self.data["feeds"]])
+        ids = list([f.id for f in self.feeds])
         i = ids.index(feed.id)
-        del self.data["feeds"][i]
+        del self.feeds[i]
         self.save()
-        self.read()
 
     def read(self):
         with open(self.path) as f:
-            self.data = json.load(f)
+            try:
+                self.data = json.load(f)
+            except json.decoder.JSONDecodeError:
+                self.data = {"feeds": []}
+
             self.feeds = [Feed(f) for f in self.data["feeds"]]
 
     def save(self):
         with open(self.path, "w+") as f:
             f.truncate(0)
+            self.data["feeds"] = [f.data for f in self.feeds]
             json.dump(self.data, f, indent=4)
 
 
@@ -61,6 +74,9 @@ class Feed:
 
     def __init__(self, data):
         self.data = data
+        self.read()
+
+    def read(self):
         for attr in self.attrs:
             setattr(self, attr, self.data.get(attr))
 
@@ -69,7 +85,12 @@ class Feed:
             if attr in data:
                 val = data.get(attr)
                 self.data[attr] = val
-                setattr(self, attr, val)
+
+        if "url" in data and data["url"] != self.url:
+            self._feed = None
+            self._entries = None
+
+        self.read()
 
     @property
     def entries(self):
@@ -99,6 +120,9 @@ class Entry:
 
     def __init__(self, data):
         self.data = data
+        self.read()
+
+    def read(self):
         for target, source in self.attrs.items():
             setattr(self, target, self.data.get(source))
 

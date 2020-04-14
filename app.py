@@ -8,6 +8,7 @@ import uuid
 
 from flask import Flask, request
 from flask import flash, render_template, redirect, url_for
+from flask_debugtoolbar import DebugToolbarExtension
 from flask_wtf import FlaskForm
 from flask_wtf.csrf import CSRFProtect
 from wtforms import validators
@@ -23,6 +24,10 @@ app.secret_key = os.environ.get("FLASK_SECRET_KEY", "")
 
 csrf = CSRFProtect(app)
 csrf.init_app(app)
+
+app.config["DEBUG_TB_PROFILER_ENABLED"] = True
+toolbar = DebugToolbarExtension(app)
+toolbar.init_app(app)
 
 
 DATA_FILE = "feeds.json"

@@ -14,6 +14,7 @@ from wtforms import validators
 from wtforms.fields import StringField
 from wtforms.fields.html5 import URLField
 
+from feed import Feeds
 from entries import Feed
 
 
@@ -31,7 +32,7 @@ DATA_FILE = "feeds.json"
 def home():
     context = {}
     try:
-        context.update(json.load(open(DATA_FILE)))
+        context["feeds"] = Feeds(DATA_FILE)
 
     except FileNotFoundError:
         flash('Data file "{}" not found.'.format(DATA_FILE), "error")

@@ -100,8 +100,12 @@ class Feed:
 
     def get_fixed_xml(self):
         r = requests.get(self.url)
-        r.encoding = r.apparent_encoding
-        xml = r.text.encode(r.encoding, "backslashreplace").decode("utf8", "replace")
+        try:
+            r.encoding = r.apparent_encoding
+            xml = r.text.encode(r.encoding, "backslashreplace").decode("utf8", "replace")
+        except (UnicodeDecodeError, UnicodeEncodeError):
+            return ""
+
         xml = xml.replace("\n", "")
 
         def escape(match):

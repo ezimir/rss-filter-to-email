@@ -21,4 +21,7 @@
 .feed-entry .feed-content sup {
     font-size: 75%;
 }
+.feed-entry .feed-content details {
+    font-size: .85em;
+}
 

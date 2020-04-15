@@ -50,7 +50,7 @@
             </p>
 
             {% if entry.summary %}
-                <div class="feed-content">
+                <div class="feed-content {{ entry.domain }}">
                     {{ entry.summary }}
 
                     {% if entry.content %}

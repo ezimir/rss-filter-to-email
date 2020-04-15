@@ -84,7 +84,7 @@ def run():
         env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dirs))
         template = env.get_template("mail.html")
         for entry in new_entries:
-            address = f"{urlparse(feed.url).netloc}@{domain}"
+            address = f"{urlparse(entry.feed.url).netloc}@{domain}"
             author = {"name": entry.feed.title, "address": address}
             subject = entry.title
 

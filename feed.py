@@ -9,6 +9,9 @@ import requests
 import tempfile
 import uuid
 
+from urllib.parse import urlparse, urljoin
+
+
 from bs4 import BeautifulSoup
 
 
@@ -155,6 +158,7 @@ class Entry:
         "url": "link",
         "updated": "published",
         "summary": "summary",
+        "_content": "content",
     }
 
     summary_treshold = 1000
@@ -189,5 +193,37 @@ class Entry:
         content = content.replace("Read full entry", "")
         return content
 
+    def read__content(self, content):
+        if content is None:
+            summary = self.data["summary"]
+            if summary.startswith("<![CDATA["):
+                summary = summary[9:-3]
+            return [{"value": summary}]
+        return content
+
     def matches(self, text):
         return text.lower() in self.title.lower()
+
+    @property
+    def domain(self):
+        return urlparse(self.url).netloc
+
+    @property
+    def content(self):
+        url = urlparse(self.url)
+        prefix_base = f"{url.scheme}://{url.netloc}"
+        prefix_entry = f"{url.scheme}://{url.netloc}{url.path}"
+
+        content = self._content
+        for item in content:
+            soup = BeautifulSoup(item["value"], "html.parser")
+            images = soup.find_all("img")
+            for image in images:
+                # ensure max width
+                image["style"] = "max-width: 100%"
+                # ensure full src path
+                if not image["src"].startswith("http"):
+                    prefix = prefix_base if image["src"].startswith("/") else prefix_entry
+                    image["src"] = urljoin(prefix, image["src"])
+            item["value"] = soup.prettify()
+        return content

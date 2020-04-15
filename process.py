@@ -62,7 +62,6 @@ def run():
         entries = [Entry(e, feed) for e in response["entries"] if is_recent(e)]
         print(f"\t\tFound {len(entries)} recent entries out of {entry_count} total.")
         new_entries.extend(entries)
-        break
 
     if new_entries:
         recipient = MAIL_TO

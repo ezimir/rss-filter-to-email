@@ -100,7 +100,9 @@ class Feed:
 
     def get_fixed_xml(self):
         r = requests.get(self.url)
-        xml = r.text.replace("\n", "")
+        r.encoding = r.apparent_encoding
+        xml = r.text.encode(r.encoding, "backslashreplace").decode("utf8", "replace")
+        xml = xml.replace("\n", "")
 
         def escape(match):
             return (
@@ -117,7 +119,7 @@ class Feed:
             xml = xml[:start] + match_xml + xml[end:]
             offset += len(match_xml) - original
 
-        return bytes(xml, r.encoding or "utf8")
+        return xml.encode("utf8")
 
     @property
     def entries(self):

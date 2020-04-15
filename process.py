@@ -2,6 +2,7 @@
 
 
 import jinja2
+import logging
 import time
 
 from datetime import datetime, timedelta
@@ -15,6 +16,9 @@ from feed import Feeds, Entry
 from mail import send_mail
 
 
+logging.basicConfig(format="%(asctime)s %(message)s", level=logging.INFO)
+
+
 def get_dt(time_struct):
     try:
         return datetime.fromtimestamp(time.mktime(time_struct))
@@ -24,17 +28,17 @@ def get_dt(time_struct):
 
 def run():
     now = datetime.now()
-    print(f"Now: {now}")
+    logging.info(f"Now: {now}")
 
     feeds = Feeds(DATA_FILE)
     last_run = feeds.last_run
 
     if last_run is None:
-        print("No last run, using 1 year ago...")
+        logging.warning("No last run, using 1 year ago...")
         last_run = datetime.utcnow() - timedelta(days=365)
 
-    print(f"Last run: {last_run}")
-    print(f"Checking {feeds.count()} feeds...")
+    logging.info(f"Last run: {last_run}")
+    logging.info(f"Checking {feeds.count()} feeds...")
 
     def is_recent(entry):
         for timestamp_key in Entry.timestamp_keys:
@@ -49,30 +53,30 @@ def run():
 
     new_entries = []
     for feed in feeds:
-        print(f"\tChecking {feed.url} ...")
+        logging.info(f"\tChecking {feed.url} ...")
         parse_args = {"modified": format_datetime(last_run)}
         if feed.data.get("etag"):
             parse_args["etag"] = feed.data["etag"]
         response = feed.get_feed()  # **parse_args)
         if getattr(response, "status", None) == 304:
-            print("\t\t304 not modified")
+            logging.warning("\t\t304 not modified")
             continue
 
         entry_count = len(response["entries"])
         entries = [Entry(e, feed) for e in response["entries"] if is_recent(e)]
-        print(f"\t\tFound {len(entries)} recent entries out of {entry_count} total.")
+        logging.info(f"\t\tFound {len(entries)} recent entries out of {entry_count} total.")
         new_entries.extend(entries)
 
     if new_entries:
         recipient = MAIL_TO
         domain = MAIL_DOMAIN
         if not (recipient or domain):
-            print("Insufficient mail setup:")
-            print(f"\tto: {recipient}")
-            print(f"\tfrom: {domain}")
+            logging.error("Insufficient mail setup:")
+            logging.error(f"\tto: {recipient}")
+            logging.error(f"\tfrom: {domain}")
             return
 
-        print(f"Sending {len(new_entries)} messages.")
+        logging.info(f"Sending {len(new_entries)} messages.")
         new_entries.sort(key=attrgetter("timestamp"), reverse=True)
 
         base_dir = Path().resolve()
@@ -87,13 +91,13 @@ def run():
             text = f"Published: {entry.timestamp}\nURL: {entry.url}\n\n{entry.summary}"
             html = template.render({"entry": entry})
 
-            print(f"\t{address}: {subject}")
+            logging.info(f"\t{address}: {subject}")
             send_mail(author, recipient, subject, text, html)
 
     else:
-        print("No new entries found.")
+        logging.warning("No new entries found.")
 
-    print(f"Saving last run to: {now}")
+    logging.info(f"Saving last run to: {now}")
     feeds.last_run = now
     feeds.save()
     return

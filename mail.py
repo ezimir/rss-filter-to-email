@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 
 
+import logging
 import os
 import smtplib
 
 import email.message
 import email.headerregistry
+
+
+logging.basicConfig(format="%(asctime)s %(message)s", level=logging.INFO)
 
 
 class Address(email.headerregistry.Address):
@@ -33,4 +37,4 @@ def send_mail(author, recipient, subject, text, html):
         server.send_message(msg)
 
     except Exception as e:
-        print(f"Error when sending email:\n{e.__class__.__name__}: {e}")
+        logging.error(f"Error when sending email:\n{e.__class__.__name__}: {e}")

@@ -28,5 +28,9 @@ def send_mail(author, recipient, subject, text, html):
     msg.set_content(text)
     msg.add_alternative(html, subtype="html")
 
-    server = smtplib.SMTP(os.environ.get("MAIL_SERVER"), os.environ.get("MAIL_PORT"))
-    server.send_message(msg)
+    try:
+        server = smtplib.SMTP(os.environ.get("MAIL_SERVER"), os.environ.get("MAIL_PORT"))
+        server.send_message(msg)
+
+    except Exception as e:
+        print(f"Error when sending email:\n{e.__class__.__name__}: {e}")

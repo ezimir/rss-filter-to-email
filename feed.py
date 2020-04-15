@@ -8,7 +8,9 @@ import re
 import requests
 import tempfile
 import uuid
+import time
 
+from datetime import datetime
 from urllib.parse import urlparse, urljoin
 
 
@@ -31,6 +33,21 @@ class Feeds:
             return feed
 
         raise StopIteration
+
+    @property
+    def last_run(self):
+        if "last_run" not in self.data:
+            return None
+
+        val = tuple(self.data["last_run"])
+        return datetime.fromtimestamp(time.mktime(val))
+
+    @last_run.setter
+    def last_run(self, timestamp):
+        self.data["last_run"] = timestamp.timetuple()
+
+    def count(self):
+        return len(self.feeds)
 
     def get(self, feed_id):
         for feed in self.feeds:
@@ -128,18 +145,27 @@ class Feed:
 
         return xml.encode("utf8")
 
+    def get_feed(self, **parse_args):
+        feed = feedparser.parse(self.url, **parse_args)
+
+        if hasattr(feed, "etag"):
+            self.data["etag"] = feed.etag
+
+        exc = feed.get("bozo_exception")
+        if exc and "undefined entity" in exc.getMessage():
+            with tempfile.NamedTemporaryFile(delete=False) as f:
+                f.write(self.get_fixed_xml())
+                feed = feedparser.parse(f.name)
+
+        return feed
+
     @property
     def entries(self):
         if self._feed is None:
-            self._feed = feedparser.parse(self.url)
-            exc = self._feed.get("bozo_exception")
-            if exc and "undefined entity" in exc.getMessage():
-                with tempfile.NamedTemporaryFile(delete=False) as f:
-                    f.write(self.get_fixed_xml())
-                    self._feed = feedparser.parse(f.name)
+            self._feed = self.get_feed()
 
         if self._entries is None:
-            self._entries = [Entry(e) for e in self._feed["entries"]]
+            self._entries = [Entry(e, self) for e in self._feed["entries"]]
 
         return self._entries
 
@@ -161,10 +187,13 @@ class Entry:
         "_content": "content",
     }
 
+    timestamp_keys = ["published_parsed", "updated_parsed"]
+
     summary_treshold = 1000
 
-    def __init__(self, data):
+    def __init__(self, data, feed):
         self.data = data
+        self.feed = feed
         self.read()
 
     def read(self):
@@ -203,6 +232,18 @@ class Entry:
 
     def matches(self, text):
         return text.lower() in self.title.lower()
+
+    @property
+    def timestamp(self):
+        val = None
+        for key in self.timestamp_keys:
+            if key in self.data:
+                val = self.data[key]
+
+        if val is None:
+            val = datetime.now().timetuple()
+
+        return datetime.fromtimestamp(time.mktime(val))
 
     @property
     def domain(self):

@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 
 
-import feedparser
-import json
-import os
+import jinja2
 import time
 
 from datetime import datetime, timedelta
 from email.utils import format_datetime
-from urllib.parse import urlsplit
+from operator import attrgetter
+from pathlib import Path
+from urllib.parse import urlparse
 
-from app import DATA_FILE
-from entries import Entry
+from app import DATA_FILE, MAIL_DOMAIN, MAIL_TO
+from feed import Feeds, Entry
 from mail import send_mail
 
 
@@ -23,81 +23,81 @@ def get_dt(time_struct):
 
 
 def run():
-    data = json.load(open(DATA_FILE))
-
     now = datetime.now()
-    print("Now: {}".format(now))
+    print(f"Now: {now}")
 
-    last_run = data.get("last_run")
+    feeds = Feeds(DATA_FILE)
+    last_run = feeds.last_run
 
-    data["last_run"] = now.timetuple()
-    if last_run:
-        last_run = get_dt(tuple(last_run))
+    if last_run is None:
+        print("No last run, using 1 year ago...")
+        last_run = datetime.utcnow() - timedelta(days=365)
 
-    else:
-        with open(DATA_FILE, "w+") as f:
-            f.truncate(0)
-            json.dump(data, f, indent=4)
+    print(f"Last run: {last_run}")
+    print(f"Checking {feeds.count()} feeds...")
 
-        print("Saved last run date.")
-        return
+    def is_recent(entry):
+        for timestamp_key in Entry.timestamp_keys:
+            if timestamp_key in entry:
+                if entry[timestamp_key].tm_year < 1900:
+                    # some feeds return unreasonably low year
+                    return False
 
-    print("Last Run: {}".format(last_run))
-    print("Checking {} feeds...".format(len(data["feeds"])))
+                entry_timestamp = datetime.fromtimestamp(time.mktime(entry[timestamp_key]))
+                return entry_timestamp > last_run
+        return False
 
-    entries = []
-    for feed in data["feeds"]:
-        parse_args = {
-            "modified": format_datetime(last_run),
-        }
-        if feed.get("etag"):
-            parse_args["etag"] = feed["etag"]
+    new_entries = []
+    for feed in feeds:
+        print(f"\tChecking {feed.url} ...")
+        parse_args = {"modified": format_datetime(last_run)}
+        if feed.data.get("etag"):
+            parse_args["etag"] = feed.data["etag"]
+        response = feed.get_feed()  # **parse_args)
+        if getattr(response, "status", None) == 304:
+            print("\t\t304 not modified")
+            continue
 
-        response = feedparser.parse(feed["url"], **parse_args)
-        print("\t{}: {}".format(response.status, feed["url"]))
+        entry_count = len(response["entries"])
+        entries = [Entry(e, feed) for e in response["entries"] if is_recent(e)]
+        print(f"\t\tFound {len(entries)} recent entries out of {entry_count} total.")
+        new_entries.extend(entries)
+        break
 
-        if hasattr(response, "etag"):
-            feed["etag"] = response.etag
+    if new_entries:
+        recipient = MAIL_TO
+        domain = MAIL_DOMAIN
+        if not (recipient or domain):
+            print("Insufficient mail setup:")
+            print(f"\tto: {recipient}")
+            print(f"\tfrom: {domain}")
+            return
 
-        if response.status == 200:  # skip 304 for unmodified feeds
-            new_entries = response["entries"]
-            # filter missing publish date
-            new_entries = [entry for entry in new_entries if "published_parsed" in entry]
-            # filter malformed publish date
-            new_entries = [entry for entry in new_entries if entry["published_parsed"].tm_year > 1]
-            # filter entries from before last run
-            new_entries = [
-                entry for entry in new_entries if last_run < get_dt(entry["published_parsed"])
-            ]
-            if len(new_entries):
-                for new_entry in new_entries:
-                    entries.append((feed, response["feed"], new_entry))
+        print(f"Sending {len(new_entries)} messages.")
+        new_entries.sort(key=attrgetter("timestamp"), reverse=True)
 
-    MAIL_DOMAIN = os.environ.get("MAIL_DOMAIN")
-    MAIL_TO = os.environ.get("MAIL_TO")
-
-    if entries:
-        print("New entries: {}.".format(len(entries)))
-        entries.sort(key=lambda entry: entry[2]["published_parsed"], reverse=True)
-        for meta, feed, entry_data in entries:
-            author = {
-                "name": meta["title"],
-                "address": "{}@{}".format(urlsplit(feed["link"]).netloc, MAIL_DOMAIN,),
-            }
-            entry = Entry(entry_data)
+        base_dir = Path().resolve()
+        template_dirs = [base_dir / loc for loc in ["templates", "static"]]
+        env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dirs))
+        template = env.get_template("mail.html")
+        for entry in new_entries:
+            address = f"{urlparse(feed.url).netloc}@{domain}"
+            author = {"name": entry.feed.title, "address": address}
             subject = entry.title
-            text = entry.summary
-            html = entry.content_flat
 
-            print("Sending from {}...".format(author["address"]))
-            send_mail(author, MAIL_TO, subject, text, html)
+            text = f"Published: {entry.timestamp}\nURL: {entry.url}\n\n{entry.summary}"
+            html = template.render({"entry": entry})
+
+            print(f"\t{address}: {subject}")
+            send_mail(author, recipient, subject, text, html)
 
     else:
-        print("No new entries.")
+        print("No new entries found.")
 
-    with open(DATA_FILE, "w+") as f:
-        f.truncate(0)
-        json.dump(data, f, indent=4)
+    print(f"Saving last run to: {now}")
+    feeds.last_run = now
+    feeds.save()
+    return
 
 
 if __name__ == "__main__":

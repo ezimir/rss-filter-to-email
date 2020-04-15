@@ -27,6 +27,9 @@ toolbar.init_app(app)
 
 DATA_FILE = "feeds.json"
 
+MAIL_TO = os.environ.get("MAIL_TO", "")
+MAIL_DOMAIN = os.environ.get("MAIL_DOMAIN", "")
+
 
 @app.route("/")
 def home():

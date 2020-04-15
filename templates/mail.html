@@ -1,0 +1,19 @@
+<style>
+    {% include "feeds.css" %}
+</style>
+
+<h4> {{ entry.title }} </h4>
+
+<p>
+    Updated: {{ entry.updated }}<br>
+    URL: <a href="{{ entry.url }}" target="_blank" rel="noopener">{{ entry.url }}</a>
+</p>
+
+<hr>
+
+<div class="feed-content {{ entry.domain }}">
+    {% for content in entry.content %}
+        {{ content.value|safe }}
+    {% endfor %}
+</div>
+

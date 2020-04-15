@@ -9,10 +9,10 @@
         {{ form.csrf_token }}
 
         <fieldset>
-            {{ render_field(form.url, placeholder='http://url.to/feed.rss') }}
+            {{ render_field(form.url, placeholder="http://url.to/feed.rss") }}
             <div class="row">
                 <div class="column">
-                    {{ render_field(form.title, placeholder='Feed Title') }}
+                    {{ render_field(form.title, placeholder="Feed Title") }}
                 </div>
                 <div class="column column-auto">
                     <label> Use Original </label>
@@ -25,7 +25,7 @@
                     </button>
                 </div>
             </div>
-            {{ render_field(form.filter, placeholder='Text to contain') }}
+            {{ render_field(form.filter, placeholder="Text to contain") }}
 
             <button class="button-primary" type="submit" name="action" value="save"> Save </button>
             <button class="button-outline float-right" type="submit" name="action" value="delete"> Delete (no confirm!) </button>

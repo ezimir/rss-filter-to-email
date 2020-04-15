@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="//cdn.rawgit.com/necolas/normalize.css/master/normalize.css">
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/milligram/1.3.0/milligram.min.css">
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for("static", filename="style.css") }}">
 </head>
 <body>
 {% macro render_field(field) %}
@@ -29,7 +29,7 @@
         <section class="container">
             <h1 class="title">
                 {% if request.url_rule.endpoint != "home" %}
-                    <a href="{{ url_for('home') }}"> RSS Filter to Email </a>
+                    <a href="{{ url_for("home") }}"> RSS Filter to Email </a>
                 {% else %}
                     RSS Filter to Email
                 {% endif %}

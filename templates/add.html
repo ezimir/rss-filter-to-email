@@ -9,10 +9,10 @@
         {{ form.csrf_token }}
 
         <fieldset>
-            {{ render_field(form.url, placeholder='https://example.url/to/rss') }}
+            {{ render_field(form.url, placeholder="https://example.url/to/rss") }}
 
             <button class="button-primary" type="submit"> Add </button>
-            <a class="button button-clear" href="{{ url_for('home') }}"> Cancel </a>
+            <a class="button button-clear" href="{{ url_for("home") }}"> Cancel </a>
         </fieldset>
     </form>
 {% endblock %}

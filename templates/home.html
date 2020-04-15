@@ -4,8 +4,6 @@
 {% block header %}Feed List{% endblock %}
 
 {% block content %}
-    <link rel="stylesheet" href="{{ url_for("static", filename="feeds.css") }}">
-
     <article id="feed-list">
         {% if feeds %}
             <ul>

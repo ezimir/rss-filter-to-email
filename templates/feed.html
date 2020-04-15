@@ -5,6 +5,8 @@
 
 
 {% block content %}
+    <link rel="stylesheet" href="{{ url_for("static", filename="feeds.css") }}">
+
     <form autocomplete="off" method="post">
         {{ form.csrf_token }}
 

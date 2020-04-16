@@ -3,6 +3,7 @@
 
 import jinja2
 import logging
+import requests
 import time
 
 from datetime import datetime, timedelta
@@ -69,11 +70,11 @@ def run():
 
     if new_entries:
         recipient = MAIL_TO
-        domain = MAIL_DOMAIN
-        if not (recipient or domain):
+        server_domain = MAIL_DOMAIN
+        if not (recipient or server_domain):
             logging.error("Insufficient mail setup:")
             logging.error(f"\tto: {recipient}")
-            logging.error(f"\tfrom: {domain}")
+            logging.error(f"\tfrom: {server_domain}")
             return
 
         logging.info(f"Sending {len(new_entries)} messages.")
@@ -84,7 +85,11 @@ def run():
         env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dirs))
         template = env.get_template("mail.html")
         for entry in new_entries:
-            address = f"{urlparse(entry.feed.url).netloc}@{domain}"
+            entry_domain = entry.domain
+            if entry.domain != feed.domain:
+                r = requests.get(entry.url)
+                entry_domain = urlparse(r.url).netloc
+            address = f"{entry_domain}@{server_domain}"
             author = {"name": entry.feed.title, "address": address}
             subject = entry.title
 

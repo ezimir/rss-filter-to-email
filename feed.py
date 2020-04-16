@@ -160,6 +160,10 @@ class Feed:
         return feed
 
     @property
+    def domain(self):
+        return urlparse(self.url).netloc
+
+    @property
     def entries(self):
         if self._feed is None:
             self._feed = self.get_feed()

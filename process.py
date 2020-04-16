@@ -65,6 +65,8 @@ def run():
 
         entry_count = len(response["entries"])
         entries = [Entry(e, feed) for e in response["entries"] if is_recent(e)]
+        if feed.filter:
+            entries = [e for e in entries if e.matches(feed.filter)]
         logging.info(f"\t\tFound {len(entries)} recent entries out of {entry_count} total.")
         new_entries.extend(entries)
 

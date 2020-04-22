@@ -10,7 +10,7 @@ import tempfile
 import uuid
 import time
 
-from datetime import datetime
+from datetime import datetime, timezone
 from urllib.parse import urlparse, urljoin
 
 
@@ -40,7 +40,7 @@ class Feeds:
             return None
 
         val = tuple(self.data["last_run"])
-        return datetime.fromtimestamp(time.mktime(val))
+        return datetime.fromtimestamp(time.mktime(val), timezone.utc)
 
     @last_run.setter
     def last_run(self, timestamp):
@@ -245,9 +245,13 @@ class Entry:
                 val = self.data[key]
 
         if val is None:
-            val = datetime.now().timetuple()
+            val = datetime.utcnow().replace(tzinfo=timezone.utc).timetuple()
 
-        return datetime.fromtimestamp(time.mktime(val))
+        try:
+            return datetime.fromtimestamp(time.mktime(val), timezone.utc)
+
+        except ValueError:
+            pass
 
     @property
     def domain(self):

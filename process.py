@@ -6,7 +6,7 @@ import logging
 import requests
 import time
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from email.utils import format_datetime
 from operator import attrgetter
 from pathlib import Path
@@ -20,15 +20,8 @@ from mail import send_mail
 logging.basicConfig(format="%(asctime)s %(message)s", level=logging.INFO)
 
 
-def get_dt(time_struct):
-    try:
-        return datetime.fromtimestamp(time.mktime(time_struct))
-    except ValueError:
-        return datetime.utcnow() - timedelta(days=365)
-
-
 def run():
-    now = datetime.now()
+    now = datetime.utcnow().replace(tzinfo=timezone.utc)
     logging.info(f"Now: {now}")
 
     feeds = Feeds(DATA_FILE)
@@ -36,7 +29,7 @@ def run():
 
     if last_run is None:
         logging.warning("No last run, using 1 year ago...")
-        last_run = datetime.utcnow() - timedelta(days=365)
+        last_run = now - timedelta(days=365)
 
     logging.info(f"Last run: {last_run}")
     logging.info(f"Checking {feeds.count()} feeds...")
@@ -48,7 +41,9 @@ def run():
                     # some feeds return unreasonably low year
                     return False
 
-                entry_timestamp = datetime.fromtimestamp(time.mktime(entry[timestamp_key]))
+                entry_timestamp = datetime.fromtimestamp(
+                    time.mktime(entry[timestamp_key]), timezone.utc
+                )
                 return entry_timestamp > last_run
         return False
 

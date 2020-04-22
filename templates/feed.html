@@ -47,7 +47,13 @@
             <h4> {{ entry.title }} </h4>
 
             <p>
+                {% if entry.published %}
+                    Published: {{ entry.published }}<br>
+                {% endif %}
                 Updated: {{ entry.updated }}<br>
+                {% if entry.timestamp %}
+                    <span class="utc">UTC: {{ entry.timestamp }}</span><br>
+                {% endif %}
                 URL: <a href="{{ entry.url }}" target="_blank" rel="noopener">{{ entry.url }}</a>
             </p>
 

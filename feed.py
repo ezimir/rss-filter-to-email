@@ -186,7 +186,8 @@ class Entry:
         "id": "id",
         "title": "title",
         "url": "link",
-        "updated": "published",
+        "published": "published",
+        "updated": "updated",
         "summary": "summary",
         "_content": "content",
     }

@@ -1,3 +1,5 @@
+gunicorn
+python-dotenv
 Flask
 Flask-WTF
 flask-debugtoolbar

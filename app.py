@@ -16,8 +16,9 @@ from feed import Feeds
 
 
 app = Flask(__name__)
-env_path = Path(__file__).parent() / '.env'
-load_dotenv(env_path.resolve())
+env_path = Path(__file__).parent() / ".env"
+if env_path.exists():
+    load_dotenv(env_path.resolve())
 
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "")
 

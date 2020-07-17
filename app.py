@@ -3,6 +3,7 @@
 
 import os
 
+from dotenv import load_dotenv
 from pathlib import Path
 
 from flask import Flask
@@ -15,6 +16,9 @@ from feed import Feeds
 
 
 app = Flask(__name__)
+env_path = Path(__file__).parent() / '.env'
+load_dotenv(env_path.resolve())
+
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "")
 
 csrf = CSRFProtect(app)

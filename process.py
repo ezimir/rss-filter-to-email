@@ -44,6 +44,8 @@ def run():
                 entry_timestamp = datetime.fromtimestamp(
                     time.mktime(entry[timestamp_key]), timezone.utc
                 )
+                if entry_timestamp > now:
+                    return False
                 return entry_timestamp > last_run
         return False
 

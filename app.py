@@ -16,7 +16,7 @@ from feed import Feeds
 
 
 app = Flask(__name__)
-env_path = Path(__file__).parent() / ".env"
+env_path = Path(__file__).parent / ".env"
 if env_path.exists():
     load_dotenv(env_path.resolve())
 
